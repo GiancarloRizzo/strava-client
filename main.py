@@ -4,7 +4,7 @@ from flask import Flask, request, redirect, session, url_for
 import os
 import requests
 import strava_request_lib as api
-from utils import load_config, save_config
+from utils import load_config, save_config, write_json2file
 app = Flask(__name__)
 
 config = load_config('credentials.yml')
@@ -15,7 +15,7 @@ website_domain = 'http://127.0.0.1'
 port = '5000'
 redirect_uri = f'{website_domain}:{port}/callback'
 response_type = 'code'
-scope = 'activity:read_all,read_all,read' #no writing permissions until yet
+scope = 'activity:read_all,activity:read,read_all,read,profile:read_all' #no writing permissions until yet
 grant_type = "authorization_code"
 token_url = "https://www.strava.com/oauth/token"
 authorization_url = f'{base_url}?client_id={client_id}&redirect_uri={redirect_uri}&response_type={response_type}&scope={scope}'
@@ -57,11 +57,21 @@ def start():
 def callback():
     get_access()
 
-    print(api.get_athlete(session['access_token']))
-    print('\n')
-    print(api.get_activities(session['access_token']))
+    # test athlete-related
+    write_json2file(api.get_athlete(session['access_token']), 'athlete.json')
+    write_json2file(api.get_athlete_zones(session['access_token']), 'athletes_zones.json')
+    write_json2file(api.get_athlete_stats(session['access_token'], 88713864), 'athlete_stats.json')
+    write_json2file(api.get_routes_by_athelete(session['access_token'], 88713864), 'route_by_athlete.json')
+    
+    # test activity-related
+    write_json2file(api.get_activities(session['access_token']), 'activities.json')
+    write_json2file(api.get_activity_by_id(session['access_token'], 7544697218), 'activity_by_id.json')
+    write_json2file(api.get_activity_laps_by_id(session['access_token'], 7544697218), 'activity_laps.json')
+    write_json2file(api.get_activity_kudoers_by_id(session['access_token'], 7544697218), 'activity_kudoers.json')
+    write_json2file(api.get_activity_comments_by_id(session['access_token'], 7544697218), 'activity_comments.json')
+    write_json2file(api.get_activity_zones_by_id(session['access_token'], 7544697218), 'activity_zones.json')
 
-
+    print('finished.')
     return redirect(url_for('.profile'))
 
 
