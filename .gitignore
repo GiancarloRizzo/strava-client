@@ -162,3 +162,5 @@ cython_debug/
 # Credentials
 credentials.yml
 
+# test-data-folder
+.test_data/*
